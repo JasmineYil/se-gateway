@@ -1,4 +1,4 @@
-# Se Gateway Application
+# SE Gateway Application
 FH Campus Wien - SDE - Service Engineering - Final Project Part 2
 
 The SE Gateway is a Spring Cloud Gateway application designed to provide dynamic routing, monitoring, resiliency, 
