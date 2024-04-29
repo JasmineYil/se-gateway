@@ -19,7 +19,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 What things you need to install the software and how to install them:
 
-- JDK 1.8 or later
+- Java JDK 17 or later
 - Maven 4.0.0
 
 ### Installing
@@ -51,7 +51,7 @@ http://localhost:9090/
 ```
 The application is configured to route requests to various backend services according to the routing rules defined in application.properties.
 
-For example, requests to http://localhost:9090/user/** will be routed to the frontend-service running on http://localhost:9091.
+For example, requests to http://localhost:9090/index.html will be routed to the frontend-service running on http://localhost:9091/index.html.
 
 ### Building for Production
 To build the application jar for production deployment, run:
