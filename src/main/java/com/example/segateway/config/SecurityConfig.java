@@ -8,6 +8,11 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -15,6 +20,20 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Bean
+    public CorsWebFilter corsFilter() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.setAllowedOrigins(List.of("http://localhost:9095"));
+        corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        corsConfig.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        corsConfig.setExposedHeaders(List.of("Authorization"));
+        corsConfig.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
+        return new CorsWebFilter(source);
+    }
 
     @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {
@@ -27,14 +46,10 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.POST, "/api/v1/customers/register").permitAll()
                         .pathMatchers(HttpMethod.POST,  "/api/v1/customers/logout").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/auth/check-session").permitAll()
-//                        .pathMatchers(HttpMethod.GET, "/api/auth/protected").permitAll()
-//                        .pathMatchers(HttpMethod.POST,   "/api/v1/customers/validate-token").permitAll()
-//                        .pathMatchers(HttpMethod.GET,  "/api/v1/cars/").permitAll()
-//                        .pathMatchers(HttpMethod.POST,  "/api/v1/cars/").permitAll()
-//                        .pathMatchers(HttpMethod.GET,  "/api/v1/cars/decode-jwt").permitAll()
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .cors().and()
                 .formLogin(formLogin -> formLogin.loginPage("/login.html"));
         return http.build();
     }
