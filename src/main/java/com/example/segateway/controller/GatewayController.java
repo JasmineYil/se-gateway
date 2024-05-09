@@ -2,8 +2,8 @@ package com.example.segateway.controller;
 
 import com.example.segateway.service.AuthClientService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,18 +40,19 @@ public class GatewayController {
                 .defaultIfEmpty(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: No token provided"));
     }
 
-    //TODO: Exception damit bei Startup keine Nachricht kommt
     @GetMapping("/check-session")
     public Mono<ResponseEntity<String>> checkCustomerSession(ServerWebExchange exchange) {
-        String cookie = exchange.getRequest().getCookies().getFirst("jwtToken").getValue();
-        logger.info("1 Cookie GATEWAY >>>>>>>>>>: {}", cookie);
+        MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
+        HttpCookie jwtTokenCookie = cookies.getFirst("jwtToken");
 
-        if (cookie != null) {
-            logger.info("2 Cookie GATEWAY >>>>>>>>>>: {}", cookie);
-            return authClientService.checkSession(cookie)
+        if (jwtTokenCookie != null) {
+            String cookieValue = jwtTokenCookie.getValue();
+            logger.info("1 Cookie GATEWAY: {}", cookieValue);
+            return authClientService.checkSession(cookieValue)
                     .map(response -> ResponseEntity.ok().body(response))
                     .defaultIfEmpty(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session is not valid."));
         } else {
+            logger.info("No 'jwtToken' cookie found");
             return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No token provided"));
         }
     }

@@ -22,26 +22,12 @@ public class SecurityConfig {
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
-    public CorsWebFilter corsFilter() {
-        CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(List.of("http://localhost:9095"));
-        corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        corsConfig.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        corsConfig.setExposedHeaders(List.of("Authorization"));
-        corsConfig.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfig);
-        return new CorsWebFilter(source);
-    }
-
-    @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {
         http
                 .csrf().disable()
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/css/**", "/js/**", "/fonts/**", "img/**").permitAll()
-                        .pathMatchers("/", "index.html", "registration.html", "contact.html", "/login.html").permitAll()
+                        .pathMatchers("/", "index.html", "registration.html", "contact.html", "login.html").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/customers/login").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/customers/register").permitAll()
                         .pathMatchers(HttpMethod.POST,  "/api/v1/customers/logout").permitAll()
@@ -52,5 +38,19 @@ public class SecurityConfig {
                 .cors().and()
                 .formLogin(formLogin -> formLogin.loginPage("/login.html"));
         return http.build();
+    }
+
+    @Bean
+    public CorsWebFilter corsFilter() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.setAllowedOrigins(List.of("http://localhost:9095"));
+        corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        corsConfig.setAllowedHeaders(List.of("Cookie", "Content-Type"));
+        corsConfig.setExposedHeaders(List.of("Cookie"));
+        corsConfig.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
+        return new CorsWebFilter(source);
     }
 }
